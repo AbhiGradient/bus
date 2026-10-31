@@ -1,0 +1,240 @@
+<footer class="site-footer clay-card">
+
+    <div class="container content-grid footer-layout">
+
+        <!-- =====================================================
+             BRAND
+        ====================================================== -->
+
+        <div class="footer-brand stack">
+
+            <a href="/" class="brand-logo">
+
+                <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <rect
+                        x="2"
+                        y="6"
+                        width="20"
+                        height="14"
+                        rx="2"
+                        ry="2"
+                    ></rect>
+
+                    <path d="M2 10h20"></path>
+                </svg>
+
+                <span>
+                    CampusTransit
+                </span>
+
+            </a>
+
+
+            <p class="footer-description">
+
+                Empowering modern educational institutions
+                with smart, safe, and automated
+                transportation solutions.
+
+            </p>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             PLATFORM
+        ====================================================== -->
+
+        <div class="footer-links stack">
+
+            <h4 class="footer-title">
+                Platform
+            </h4>
+
+
+            <ul>
+
+                <!-- Dynamic Dashboard -->
+
+                <% if (user) { %>
+
+                    <% if (user.role === 'admin') { %>
+
+                        <li>
+                            <a href="/admin/dashboard">
+                                Dashboard
+                            </a>
+                        </li>
+
+                    <% } else if (user.role === 'student') { %>
+
+                        <li>
+                            <a href="/student/dashboard">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/student/payment-history">
+                                Payment History
+                            </a>
+                        </li>
+
+                    <% } else if (user.role === 'driver') { %>
+
+                        <li>
+                            <a href="/driver/dashboard">
+                                Dashboard
+                            </a>
+                        </li>
+
+                    <% } %>
+
+                <% } else { %>
+
+                    <li>
+                        <a href="/login">
+                            Login
+                        </a>
+                    </li>
+
+                <% } %>
+
+
+                <li>
+    <a href="/home/transport-office">
+        Transport Office
+    </a>
+</li>
+
+            </ul>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             RESOURCES
+        ====================================================== -->
+
+        <div class="footer-links stack">
+
+            <h4 class="footer-title">
+                Resources
+            </h4>
+
+
+            <ul>
+
+                <li>
+    <a href="/home/help-center">
+        Help Center
+    </a>
+</li>
+
+
+                <li>
+                    <a href="/home/safety-guidelines">
+                        Safety Guidelines
+                    </a>
+                </li>
+
+
+                <li>
+                    <a href="/home/about">
+                        About CampusTransit
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             SUPPORT
+        ====================================================== -->
+
+        <div class="footer-links stack">
+
+            <h4 class="footer-title">
+                Support
+            </h4>
+
+
+            <ul>
+
+                <li>
+                    <a href="/home/report-issue">
+                        Report an Issue
+                    </a>
+                </li>
+
+
+                <li>
+                    <a href="/home/contact">
+                        Contact Transport Office
+                    </a>
+                </li>
+
+
+                <% if (!user) { %>
+
+                    <li>
+                        <a href="/auth/forgot-password">
+                            Forgot Password
+                        </a>
+                    </li>
+
+                <% } %>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         FOOTER BOTTOM
+    ====================================================== -->
+
+    <div class="container footer-bottom flex-row justify-between align-center">
+
+        <p>
+
+            &copy;
+            <%= new Date().getFullYear() %>
+
+            Campus Transit System.
+            All rights reserved.
+
+        </p>
+
+
+        <div class="legal-links flex-row">
+
+            <a href="/home/privacy-policy">
+                Privacy Policy
+            </a>
+
+
+            <a href="/home/terms">
+                Terms of Service
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>

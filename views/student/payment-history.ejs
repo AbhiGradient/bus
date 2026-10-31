@@ -1,0 +1,171 @@
+<%- include('../partials/header', {
+  pageTitle: 'Payment History',
+  pageCss: []
+}) %>
+
+<div class="app-shell">
+
+  <%- include('../partials/sidebar', {
+    currentPage: 'payment-history'
+  }) %>
+
+  <%- include('../partials/navbar', {
+    pageLabel: 'Payment History'
+  }) %>
+
+  <div class="app-main">
+    <main class="main-content">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>
+          <i class="bi bi-clock-history text-secondary"></i>
+          Payment History
+        </h3>
+
+        <a href="/student/dashboard" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i>
+          Back to Dashboard
+        </a>
+      </div>
+
+      <div class="row g-3 mb-3">
+
+        <div class="col-md-4">
+          <div class="card p-3 h-100">
+            <div class="text-muted small mb-1">Total Payments</div>
+            <div class="fs-4 fw-bold">
+              <%= payments ? payments.length : 0 %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-3 h-100">
+            <div class="text-muted small mb-1">Successful Payments</div>
+            <div class="fs-4 fw-bold">
+              <%= payments
+                ? payments.filter(payment => {
+                    const status = String(payment.status || '').toLowerCase();
+                    return status === 'success' || status === 'paid';
+                  }).length
+                : 0
+              %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-3 h-100">
+            <div class="text-muted small mb-1">Total Amount Paid</div>
+            <div class="fs-4 fw-bold">
+              ₹<%= payments
+                ? payments
+                    .filter(payment => {
+                      const status = String(payment.status || '').toLowerCase();
+                      return status === 'success' || status === 'paid';
+                    })
+                    .reduce((total, payment) => total + Number(payment.amount || 0), 0)
+                    .toFixed(2)
+                : '0.00'
+              %>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card p-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Receipt Number</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Transaction ID</th>
+                <th>Payment Date</th>
+                <th>Status</th>
+                <th>Receipt</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <% if (!payments || payments.length === 0) { %>
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-3">
+                    You have not completed any bus fee payments yet.
+                  </td>
+                </tr>
+              <% } %>
+
+              <% payments && payments.forEach((payment, index) => {
+                const paymentStatus = String(payment.status || '').toLowerCase();
+                const isSuccess = paymentStatus === 'success' || paymentStatus === 'paid';
+              %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><strong><%= payment.receipt_no || 'N/A' %></strong></td>
+                  <td class="text-danger fw-semibold">
+                    ₹<%= Number(payment.amount || 0).toFixed(2) %>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border">
+                      <%= payment.payment_method || 'N/A' %>
+                    </span>
+                  </td>
+                  <td><%= payment.transaction_id || 'N/A' %></td>
+                  <td>
+                    <%= payment.payment_date
+                      ? new Date(payment.payment_date).toLocaleString('en-IN')
+                      : 'N/A'
+                    %>
+                  </td>
+                  <td>
+                    <% if (isSuccess) { %>
+                      <span class="badge bg-success">
+                        <i class="bi bi-check-lg"></i>
+                        <%= payment.status %>
+                      </span>
+                    <% } else if (paymentStatus === 'pending') { %>
+                      <span class="badge bg-warning text-dark">
+                        <i class="bi bi-clock"></i>
+                        <%= payment.status %>
+                      </span>
+                    <% } else { %>
+                      <span class="badge bg-danger">
+                        <i class="bi bi-x-lg"></i>
+                        <%= payment.status || 'Failed' %>
+                      </span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (isSuccess) { %>
+                      <a href="/payment/receipt/<%= payment.id %>" class="btn btn-sm btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        View / Download
+                      </a>
+                    <% } else { %>
+                      <span class="text-muted">—</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>

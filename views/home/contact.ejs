@@ -1,0 +1,534 @@
+<%- include('../partials/header', { title: 'Contact Us | CampusTransit' }) %>
+
+<style>
+    /* =====================================================
+       CONTACT US — scoped internal styles
+       Uses tokens from main.css directly. Never redeclares
+       shared classes (.clay-card, .btn) at global specificity —
+       only compound-scoped so nothing leaks to footer/navbar.
+    ===================================================== */
+
+    .ct-page{
+        --ct-brass-light: #D3A05C;
+        display:flex;
+        flex-direction:column;
+        gap:28px;
+        padding:26px 0 56px;
+    }
+
+    /* ---------- HERO ---------- */
+    .ct-hero.clay-card{
+        position:relative;
+        display:flex;
+        align-items:center;
+        gap:30px;
+        padding:44px 48px;
+        background:linear-gradient(135deg, var(--pine) 0%, var(--pine-deep) 100%);
+        color:var(--paper);
+        border-radius:var(--radius-lg);
+        overflow:hidden;
+    }
+
+    .ct-hero-stub{ flex:1; min-width:260px; }
+
+    .ct-hero-eyebrow{
+        font-family:var(--font-mono);
+        font-size:12px;
+        letter-spacing:.14em;
+        text-transform:uppercase;
+        color:var(--ct-brass-light);
+    }
+
+    .ct-hero-title{
+        font-family:var(--font-display);
+        font-size:40px;
+        font-weight:600;
+        margin:10px 0 12px;
+        color:#fff;
+    }
+
+    .ct-hero-sub{
+        font-family:var(--font-body);
+        max-width:480px;
+        line-height:1.7;
+        color:rgba(246,243,236,.82);
+    }
+
+    .ct-hero-icon{
+        font-size:80px;
+        opacity:.9;
+        flex-shrink:0;
+        filter:drop-shadow(0 10px 20px rgba(0,0,0,.25));
+    }
+
+    /* ---------- GRID ---------- */
+    .ct-grid{
+        display:grid;
+        grid-template-columns:320px 1fr;
+        gap:26px;
+    }
+
+    /* ---------- MANAGER CARD ---------- */
+    .ct-manager.clay-card{
+        padding:36px 30px;
+        text-align:center;
+        border-radius:var(--radius-lg);
+    }
+
+    .ct-manager-avatar{
+        width:120px;height:120px;
+        margin:0 auto 18px;
+        border-radius:50%;
+        overflow:hidden;
+        border:4px solid var(--paper-raised);
+        box-shadow:var(--shadow-card);
+    }
+    .ct-manager-avatar img{
+        width:100%;height:100%;
+        object-fit:cover;
+    }
+
+    .ct-manager-name{
+        font-family:var(--font-display);
+        font-size:24px;
+        color:var(--ink-hi);
+        margin-bottom:4px;
+    }
+
+    .ct-manager-role{
+        display:inline-block;
+        font-family:var(--font-mono);
+        font-size:11px;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+        color:var(--pine);
+        background:var(--pine-soft);
+        border:1px solid var(--line);
+        padding:6px 14px;
+        border-radius:100px;
+        margin-bottom:18px;
+    }
+
+    .ct-manager-desc{
+        font-family:var(--font-body);
+        font-size:14px;
+        line-height:1.7;
+        color:var(--ink-mid);
+        margin-bottom:6px;
+    }
+
+    .ct-page .ticket-divider{
+        display:flex;
+        justify-content:space-between;
+        margin:22px 0;
+    }
+    .ct-page .ticket-divider span{
+        width:8px;height:8px;
+        border-radius:50%;
+        background:var(--paper-sunk);
+        border:1px solid var(--line);
+    }
+
+    .ct-manager-email{
+        display:block;
+        margin-top:14px;
+        font-family:var(--font-mono);
+        font-size:13px;
+        color:var(--pine);
+        text-decoration:none;
+    }
+    .ct-manager-email:hover{ text-decoration:underline; }
+
+    /* ---------- RIGHT COLUMN ---------- */
+    .ct-right{
+        display:flex;
+        flex-direction:column;
+        gap:22px;
+    }
+
+    .ct-info-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+        gap:16px;
+    }
+
+    .ct-info-card.clay-card{
+        padding:22px;
+        border-radius:var(--radius-md);
+        transition:transform .22s var(--ease-out), box-shadow .22s var(--ease-out);
+    }
+    .ct-info-card.clay-card:hover{
+        transform:translateY(-4px);
+        box-shadow:var(--shadow-lift);
+    }
+
+    .ct-info-icon{
+        font-size:20px;
+        display:inline-block;
+        margin-bottom:8px;
+    }
+
+    .ct-info-card h3{
+        font-family:var(--font-display);
+        font-size:15.5px;
+        color:var(--ink-hi);
+        margin-bottom:6px;
+    }
+
+    .ct-info-card p{
+        font-family:var(--font-body);
+        font-size:13px;
+        color:var(--ink-mid);
+        line-height:1.6;
+    }
+
+    .ct-info-link{
+        display:inline-block;
+        margin-top:8px;
+        font-family:var(--font-mono);
+        font-size:12px;
+        color:var(--brass);
+        text-decoration:none;
+    }
+    .ct-info-link:hover{ text-decoration:underline; }
+
+    /* ---------- MESSAGE FORM ---------- */
+    .ct-form.clay-card{
+        padding:30px 32px;
+        border-radius:var(--radius-lg);
+        display:flex;
+        flex-direction:column;
+        gap:18px;
+    }
+
+    .ct-form-title{
+        font-family:var(--font-display);
+        font-size:19px;
+        color:var(--ink-hi);
+    }
+    .ct-form-sub{
+        font-family:var(--font-body);
+        font-size:13.5px;
+        color:var(--ink-mid);
+        margin-top:-10px;
+    }
+
+    .ct-form-row{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+
+    .ct-form-row-split{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:18px;
+    }
+
+    .ct-form label{
+        font-family:var(--font-mono);
+        font-size:12px;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+        color:var(--pine);
+    }
+
+    .ct-form input[type="text"],
+    .ct-form input[type="email"],
+    .ct-form select,
+    .ct-form textarea{
+        font-family:var(--font-body);
+        font-size:14.5px;
+        color:var(--ink-hi);
+        background:var(--paper-sunk);
+        border:1px solid var(--line);
+        border-radius:var(--radius-sm);
+        padding:12px 14px;
+        outline:none;
+        transition:border-color .2s, box-shadow .2s, background .2s;
+        width:100%;
+    }
+
+    .ct-form input:focus,
+    .ct-form select:focus,
+    .ct-form textarea:focus{
+        border-color:var(--brass);
+        background:var(--paper-raised);
+        box-shadow:0 0 0 4px var(--brass-soft);
+    }
+
+    .ct-form textarea{
+        resize:vertical;
+        line-height:1.6;
+    }
+
+    /* ---------- SERVICES ---------- */
+    .ct-services.clay-card{
+        padding:26px 28px;
+        border-radius:var(--radius-lg);
+    }
+
+    .ct-services-title{
+        font-family:var(--font-display);
+        font-size:18px;
+        color:var(--ink-hi);
+        margin-bottom:16px;
+    }
+
+    .ct-tags{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+
+    .ct-tags span{
+        padding:9px 16px;
+        border-radius:100px;
+        background:var(--pine);
+        color:#fff;
+        font-family:var(--font-body);
+        font-size:13px;
+        font-weight:600;
+        transition:background .22s, transform .22s;
+    }
+    .ct-tags span:hover{
+        background:var(--brass);
+        color:#2A1B04;
+        transform:translateY(-2px);
+    }
+
+    /* ---------- button modifiers (extend existing .btn base) ---------- */
+    .ct-page .btn-brass{
+        background:linear-gradient(135deg, var(--brass), var(--ct-brass-light));
+        color:#2A1B04;
+        box-shadow:0 8px 20px rgba(184,134,60,.28);
+    }
+    .ct-page .btn-brass:hover{
+        transform:translateY(-2px);
+        filter:brightness(1.05);
+    }
+
+    .ct-page .btn-outline{
+        background:transparent;
+        color:var(--pine);
+        border:1.5px solid var(--pine);
+    }
+    .ct-page .btn-outline:hover{
+        background:var(--pine);
+        color:var(--paper);
+    }
+
+    .ct-page .btn-block{ width:100%; }
+
+    /* ---------- BACK LINK ---------- */
+    .ct-back{ max-width:320px; }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:900px){
+        .ct-grid{ grid-template-columns:1fr; }
+        .ct-hero.clay-card{ flex-direction:column; align-items:flex-start; padding:34px 26px; }
+        .ct-hero-icon{ align-self:flex-end; }
+        .ct-form-row-split{ grid-template-columns:1fr; }
+        .ct-back{ max-width:100%; }
+    }
+</style>
+
+<div class="app-shell">
+
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/sidebar') %>
+
+    <main class="app-main">
+
+        <div class="container ct-page">
+
+            <!-- =====================================================
+                 HERO
+            ====================================================== -->
+
+            <section class="ct-hero clay-card">
+                <div class="ct-hero-stub">
+                    <span class="ct-hero-eyebrow">Route&nbsp;00 &middot; Support Desk</span>
+                    <h1 class="ct-hero-title">Contact Us</h1>
+                    <p class="ct-hero-sub">
+                        Questions about your bus, route timings, fees,
+                        attendance, or anything else &mdash; the Transport
+                        Office is here to help.
+                    </p>
+                </div>
+                <span class="ct-hero-icon">&#128222;</span>
+            </section>
+
+            <!-- =====================================================
+                 MAIN GRID: MANAGER CARD + RIGHT COLUMN
+            ====================================================== -->
+
+            <div class="ct-grid">
+
+                <!-- ============ MANAGER CARD ============ -->
+                <aside class="ct-manager clay-card">
+
+                    <div class="ct-manager-avatar">
+                        <img src="/images/amol-bhate.jpg" alt="Transport Manager, Amol Bhate">
+                    </div>
+
+                    <h2 class="ct-manager-name">Amol Bhate</h2>
+                    <span class="ct-manager-role">Transport Manager</span>
+
+                    <p class="ct-manager-desc">
+                        For transportation support, route changes, emergency
+                        assistance, or bus-related queries, reach out
+                        directly.
+                    </p>
+
+                    <div class="ticket-divider">
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+
+                    <a href="tel:+919011685965" class="btn btn-brass btn-block">
+                        <span class="icon">&#9742;</span> +91 90116 85965
+                    </a>
+
+                    <a href="mailto:transport@zcoer.in" class="ct-manager-email">
+                        transport@zcoer.in
+                    </a>
+
+                </aside>
+
+                <!-- ============ RIGHT COLUMN ============ -->
+                <div class="ct-right">
+
+                    <div class="ct-info-grid">
+
+                        <div class="ct-info-card clay-card">
+                            <span class="ct-info-icon">&#128205;</span>
+                            <h3>Office</h3>
+                            <p>
+                                E Building, Ground Floor<br>
+                                Transport Department, ZCOER
+                            </p>
+                        </div>
+
+                        <div class="ct-info-card clay-card">
+                            <span class="ct-info-icon">&#128340;</span>
+                            <h3>Office Hours</h3>
+                            <p>Monday &ndash; Saturday<br>9:00 AM &ndash; 5:00 PM</p>
+                        </div>
+
+                        <div class="ct-info-card clay-card">
+                            <span class="ct-info-icon">&#127760;</span>
+                            <h3>Website</h3>
+                            <p>Official college portal</p>
+                            <a href="https://zcoer.in/" target="_blank" rel="noopener noreferrer" class="ct-info-link">
+                                zcoer.in &rarr;
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <!-- ============ MESSAGE FORM ============ -->
+                    <form class="ct-form clay-card" action="/home/contact" method="POST">
+
+                        <div>
+                            <h3 class="ct-form-title">Send a Message</h3>
+                            <p class="ct-form-sub">Not urgent? Drop a message and we'll get back to you.</p>
+                        </div>
+
+                        <div class="ct-form-row-split">
+                            <div class="ct-form-row">
+                                <label for="ctName">Your Name</label>
+                                <input
+                                    type="text"
+                                    id="ctName"
+                                    name="name"
+                                    value="<%= typeof user !== 'undefined' && user ? user.name : '' %>"
+                                    required
+                                >
+                            </div>
+                            <div class="ct-form-row">
+                                <label for="ctEmail">Email</label>
+                                <input
+                                    type="email"
+                                    id="ctEmail"
+                                    name="email"
+                                    value="<%= typeof user !== 'undefined' && user ? user.email : '' %>"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="ct-form-row">
+                            <label for="ctSubject">Subject</label>
+                            <input
+                                type="text"
+                                id="ctSubject"
+                                name="subject"
+                                placeholder="What's this about?"
+                                maxlength="120"
+                                required
+                            >
+                        </div>
+
+                        <div class="ct-form-row">
+                            <label for="ctMessage">Message</label>
+                            <textarea
+                                id="ctMessage"
+                                name="message"
+                                rows="5"
+                                placeholder="Tell us what's going on"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-brass btn-block">
+                            <span class="icon">&#9993;</span> Send Message
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- =====================================================
+                 SERVICES
+            ====================================================== -->
+
+            <div class="ct-services clay-card">
+                <h3 class="ct-services-title">Transport Office Can Help You With</h3>
+                <div class="ct-tags">
+                    <span>Bus Route</span>
+                    <span>Bus Pass</span>
+                    <span>Fee Queries</span>
+                    <span>Attendance</span>
+                    <span>Driver Support</span>
+                    <span>Emergency Help</span>
+                    <span>Lost Items</span>
+                    <span>Complaints</span>
+                </div>
+            </div>
+
+            <!-- =====================================================
+                 BACK LINK
+            ====================================================== -->
+
+            <div class="ct-back">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <a href="/<%= user.role %>/dashboard" class="btn btn-outline btn-block">
+                        &larr; Back to Dashboard
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-outline btn-block">
+                        &larr; Back to Login
+                    </a>
+                <% } %>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<%- include('../partials/footer') %>

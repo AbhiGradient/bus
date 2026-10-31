@@ -1,0 +1,207 @@
+<%- include('../partials/header', { pageTitle: 'QR Generator', pageCss: [] }) %>
+
+<div class="app-shell">
+  <%- include('../partials/sidebar', { currentPage: 'qr-generator' }) %>
+  <%- include('../partials/navbar', { pageLabel: 'QR Generator' }) %>
+
+  <div class="app-main">
+    <main class="main-content">
+
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="mb-0"><i class="bi bi-qr-code"></i> QR Code Generator</h3>
+        <div class="d-flex gap-2">
+          <input type="text" id="studentSearch" class="form-control form-control-sm" style="width: 220px;" placeholder="Search name or roll no...">
+          <button class="btn btn-outline-secondary btn-sm" id="printAllBtn">
+            <i class="bi bi-printer"></i> Print All Passes
+          </button>
+        </div>
+      </div>
+      <p class="text-muted">Select a student to generate a scannable boarding pass for bus attendance.</p>
+
+      <div class="row g-3">
+        <!-- Student list -->
+        <div class="col-lg-7">
+          <div class="card p-3">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle" id="studentTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Department</th>
+                    <th>Bus</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (!students || students.length === 0) { %>
+                    <tr><td colspan="6" class="text-center text-muted py-3">No students found.</td></tr>
+                  <% } %>
+                  <% students.forEach((s, i) => { %>
+                    <tr
+                      class="qr-row"
+                      data-id="<%= s.id %>"
+                      data-name="<%= s.name %>"
+                      data-roll="<%= s.roll_no %>"
+                      data-department="<%= s.department || '—' %>"
+                      data-bus="<%= s.bus_number || 'Unassigned' %>"
+                      data-search="<%= (s.name + ' ' + s.roll_no).toLowerCase() %>"
+                    >
+                      <td><%= i + 1 %></td>
+                      <td><%= s.name %></td>
+                      <td><%= s.roll_no %></td>
+                      <td><%= s.department || '—' %></td>
+                      <td><%= s.bus_number || '—' %></td>
+                      <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary generate-btn">
+                          <i class="bi bi-qr-code"></i> Generate
+                        </button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR preview / boarding pass -->
+        <div class="col-lg-5">
+          <div class="card p-3" style="position: sticky; top: 90px;">
+            <h5 class="mb-3"><i class="bi bi-card-heading"></i> Boarding Pass Preview</h5>
+
+            <div class="qr-pass" id="qrPass">
+              <div class="qr-pass-name" id="passName">No student selected</div>
+              <div class="qr-pass-meta" id="passMeta">Select a student from the list</div>
+
+              <div class="qr-pass-canvas-wrap" id="qrCanvasWrap">
+                <span class="qr-pass-placeholder"><i class="bi bi-qr-code fs-2 d-block mb-1"></i>QR appears here</span>
+              </div>
+
+              <div class="qr-pass-badge" id="passBusBadge">—</div>
+            </div>
+
+            <div class="d-grid gap-2 mt-3">
+              <button type="button" class="btn btn-success" id="downloadBtn" disabled>
+                <i class="bi bi-download"></i> Download PNG
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="printOneBtn" disabled>
+                <i class="bi bi-printer"></i> Print This Pass
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden container used only when printing every pass at once -->
+      <div id="printAllContainer" style="display: none;"></div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
+
+<script>
+  let currentStudent = null;
+
+  function renderPass(row) {
+    currentStudent = row;
+
+    document.getElementById('passName').textContent = row.dataset.name;
+    document.getElementById('passMeta').textContent =
+      row.dataset.roll + ' · ' + row.dataset.department;
+    document.getElementById('passBusBadge').textContent = row.dataset.bus;
+
+    const wrap = document.getElementById('qrCanvasWrap');
+    wrap.innerHTML = '';
+    const img = document.createElement('img');
+    img.width = 200;
+    img.height = 200;
+    img.alt = 'QR code';
+    img.onload = () => {
+      document.getElementById('downloadBtn').disabled = false;
+      document.getElementById('printOneBtn').disabled = false;
+    };
+    img.onerror = () => {
+      wrap.innerHTML = '<span class="qr-pass-placeholder text-danger">Failed to generate QR</span>';
+    };
+    img.src = '/admin/qr-generator/' + row.dataset.id + '/download';
+    wrap.appendChild(img);
+  }
+
+  document.querySelectorAll('.generate-btn').forEach(btn => {
+    btn.addEventListener('click', () => renderPass(btn.closest('tr')));
+  });
+
+  // Row click also generates (not just the button)
+  document.querySelectorAll('.qr-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.generate-btn')) return; // avoid double-trigger
+      renderPass(row);
+    });
+    row.style.cursor = 'pointer';
+  });
+
+  // Live search filter
+  document.getElementById('studentSearch').addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('#studentTable tbody tr.qr-row').forEach(row => {
+      row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Download the currently previewed pass as a PNG
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if (!currentStudent) return;
+    window.location.href = '/admin/qr-generator/' + currentStudent.dataset.id + '/download';
+  });
+
+  // Print just the currently previewed pass
+  document.getElementById('printOneBtn').addEventListener('click', () => {
+    window.print();
+  });
+
+  // Print every student's pass at once (builds a temporary printable grid)
+  document.getElementById('printAllBtn').addEventListener('click', async () => {
+    const container = document.getElementById('printAllContainer');
+    container.innerHTML = '';
+
+    const rows = document.querySelectorAll('#studentTable tbody tr.qr-row');
+    for (const row of rows) {
+      const passDiv = document.createElement('div');
+      passDiv.className = 'qr-pass';
+      passDiv.style.display = 'inline-block';
+      passDiv.style.margin = '10px';
+      passDiv.style.width = '260px';
+
+      const img = document.createElement('img');
+      img.width = 160;
+      img.height = 160;
+      img.src = '/admin/qr-generator/' + row.dataset.id + '/download';
+
+      passDiv.innerHTML =
+        '<div class="qr-pass-name">' + row.dataset.name + '</div>' +
+        '<div class="qr-pass-meta">' + row.dataset.roll + ' · ' + row.dataset.department + '</div>' +
+        '<div class="qr-pass-canvas-wrap"></div>' +
+        '<div class="qr-pass-badge">' + row.dataset.bus + '</div>';
+      passDiv.querySelector('.qr-pass-canvas-wrap').appendChild(img);
+      container.appendChild(passDiv);
+    }
+
+    container.style.display = 'block';
+    document.getElementById('qrPass').closest('.card').style.display = 'none';
+    document.querySelector('.col-lg-7').style.display = 'none';
+
+    window.print();
+
+    // Restore the normal view after the print dialog closes
+    container.style.display = 'none';
+    document.getElementById('qrPass').closest('.card').style.display = '';
+    document.querySelector('.col-lg-7').style.display = '';
+  });
+</script>

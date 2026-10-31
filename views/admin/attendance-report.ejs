@@ -1,0 +1,290 @@
+<%- include('../partials/header', {
+  pageTitle: 'Attendance Report',
+  pageCss: []
+}) %>
+
+<div class="app-shell">
+
+  <%- include('../partials/sidebar', {
+    currentPage: 'attendance-report'
+  }) %>
+
+  <%- include('../partials/navbar', {
+    pageLabel: 'Attendance Report'
+  }) %>
+
+  <div class="app-main">
+    <main class="main-content">
+
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+          <h3 class="mb-1">
+            <i class="bi bi-clipboard-data me-2"></i>
+            Attendance Report
+          </h3>
+          <p class="text-muted mb-0">
+            View and filter daily student attendance records.
+          </p>
+        </div>
+
+        <button
+          class="btn btn-outline-primary"
+          onclick="window.print()">
+          <i class="bi bi-printer me-1"></i>
+          Print Report
+        </button>
+      </div>
+
+      <!-- Statistics -->
+      <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card bg-c3">
+            <i class="bi bi-people-fill fs-3"></i>
+            <h2><%= stats.total %></h2>
+            <div>Total Records</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card bg-c5">
+            <i class="bi bi-check-circle-fill fs-3"></i>
+            <h2><%= stats.present %></h2>
+            <div>Present</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card bg-c4">
+            <i class="bi bi-x-circle-fill fs-3"></i>
+            <h2><%= stats.absent %></h2>
+            <div>Absent</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card bg-c2">
+            <i class="bi bi-graph-up fs-3"></i>
+            <h2><%= stats.rate %>%</h2>
+            <div>Attendance Rate</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Filters -->
+      <div class="card p-4 mb-4">
+
+        <h5 class="mb-3">
+          <i class="bi bi-funnel me-2"></i>
+          Filter Attendance
+        </h5>
+
+        <form
+          method="GET"
+          action="/admin/attendance-report"
+          class="row g-3">
+
+          <div class="col-md-3">
+            <label class="form-label">Date</label>
+            <input
+              type="date"
+              name="date"
+              class="form-control"
+              value="<%= filters.date || '' %>">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Bus</label>
+
+            <select
+              name="bus_id"
+              class="form-select">
+
+              <option value="">All Buses</option>
+
+              <% buses.forEach(b => { %>
+
+                <option
+                  value="<%= b.id %>"
+                  <%= String(filters.bus_id) === String(b.id) ? 'selected' : '' %>>
+
+                  <%= b.bus_number %>
+
+                </option>
+
+              <% }) %>
+
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Status</label>
+
+            <select
+              name="status"
+              class="form-select">
+
+              <option value="">All</option>
+
+              <option
+                value="present"
+                <%= filters.status === 'present' ? 'selected' : '' %>>
+
+                Present
+
+              </option>
+
+              <option
+                value="absent"
+                <%= filters.status === 'absent' ? 'selected' : '' %>>
+
+                Absent
+
+              </option>
+
+            </select>
+
+          </div>
+
+          <div class="col-md-3 d-flex align-items-end gap-2">
+
+            <button
+              class="btn btn-primary flex-fill"
+              type="submit">
+
+              <i class="bi bi-search me-1"></i>
+              Apply
+
+            </button>
+
+            <a
+              href="/admin/attendance-report"
+              class="btn btn-outline-secondary">
+
+              <i class="bi bi-arrow-clockwise"></i>
+
+            </a>
+
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- Attendance Table -->
+      <div class="card">
+
+        <div class="card-header bg-white">
+          <h5 class="mb-0">
+            <i class="bi bi-table me-2"></i>
+            Attendance Records
+          </h5>
+        </div>
+
+        <div class="table-responsive">
+
+          <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Roll No</th>
+                <th>Bus</th>
+                <th>Date</th>
+                <th>Time In</th>
+                <th>Status</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              <% if (!records || records.length === 0) { %>
+
+                <tr>
+
+                  <td colspan="7" class="text-center py-5 text-muted">
+
+                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+
+                    No attendance records found.
+
+                  </td>
+
+                </tr>
+
+              <% } %>
+
+              <% records.forEach((r, i) => { %>
+
+                <tr>
+
+                  <td><%= i + 1 %></td>
+
+                  <td class="fw-semibold">
+                    <%= r.student_name %>
+                  </td>
+
+                  <td>
+                    <%= r.roll_no %>
+                  </td>
+
+                  <td>
+                    <%= r.bus_number %>
+                  </td>
+
+                  <td>
+                    <%= new Date(r.date).toLocaleDateString() %>
+                  </td>
+
+                  <td>
+                    <%= r.time_in || '—' %>
+                  </td>
+
+                  <td>
+
+                    <% if (r.status === 'present') { %>
+
+                      <span class="badge bg-success">
+                        Present
+                      </span>
+
+                    <% } else { %>
+
+                      <span class="badge bg-danger">
+                        Absent
+                      </span>
+
+                    <% } %>
+
+                  </td>
+
+                </tr>
+
+              <% }) %>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>

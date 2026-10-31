@@ -1,0 +1,124 @@
+<%- include('../partials/header', {
+  pageTitle: 'Assign Bus',
+  pageCss: []
+}) %>
+
+<div class="app-shell">
+
+  <%- include('../partials/sidebar', {
+    currentPage: 'assign-bus'
+  }) %>
+
+  <%- include('../partials/navbar', {
+    pageLabel: 'Assign Bus'
+  }) %>
+
+  <div class="app-main">
+    <main class="main-content">
+ 
+  
+
+    <div class="page-content">
+      <h3 class="mb-3"><i class="bi bi-signpost-split"></i> Assign Bus &amp; Driver</h3>
+
+      <div class="row g-3">
+        <!-- Assign bus to student -->
+        <div class="col-lg-6">
+          <div class="card p-4">
+            <h5><i class="bi bi-person-check"></i> Assign Bus to Student</h5>
+            <form action="/admin/assign-bus/student" method="POST" class="mt-3">
+              <div class="mb-3">
+                <label class="form-label">Select Student</label>
+                <select name="student_id" class="form-select" required>
+                  <option value="" disabled selected>-- Choose Student --</option>
+                  <% students.forEach(s => { %>
+                    <option value="<%= s.id %>"><%= s.name %> (<%= s.roll_no %>)<%= s.bus_number ? ' — currently: ' + s.bus_number : '' %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Select Bus</label>
+                <select name="bus_id" class="form-select" required>
+                  <option value="">-- Remove from bus --</option>
+                  <% buses.forEach(b => { %>
+                    <option value="<%= b.id %>"><%= b.bus_number %> — <%= b.route_name %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Assign</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Assign driver to bus -->
+        <div class="col-lg-6">
+          <div class="card p-4">
+            <h5><i class="bi bi-person-badge"></i> Assign Driver to Bus</h5>
+            <form action="/admin/assign-bus/driver" method="POST" class="mt-3">
+              <div class="mb-3">
+                <label class="form-label">Select Bus</label>
+                <select name="bus_id" class="form-select" required>
+                  <option value="" disabled selected>-- Choose Bus --</option>
+                  <% buses.forEach(b => { %>
+                    <option value="<%= b.id %>"><%= b.bus_number %> — <%= b.route_name %><%= b.driver_name ? ' — currently: ' + b.driver_name : '' %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Select Driver</label>
+                <select name="driver_id" class="form-select" required>
+                  <option value="">-- Remove driver --</option>
+                  <% drivers.forEach(d => { %>
+                    <option value="<%= d.id %>"><%= d.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Assign</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current assignments overview -->
+      <div class="card p-3 mt-4">
+        <h5 class="mb-3"><i class="bi bi-list-check"></i> Current Bus Assignments</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Bus</th>
+                <th>Route</th>
+                <th>Driver</th>
+                <th>Students Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% buses.forEach(b => { %>
+                <tr>
+                  <td><strong><%= b.bus_number %></strong></td>
+                  <td><%= b.route_name %></td>
+                  <td><%= b.driver_name || '—' %></td>
+                  <td><%= students.filter(s => s.bus_id === b.id).length %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+       
+    </div>
+  </div>
+      </main>
+
+    
+
+  </div>
+  <%- include('../partials/footer') %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>
